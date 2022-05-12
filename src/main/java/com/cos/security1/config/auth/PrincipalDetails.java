@@ -7,21 +7,34 @@ package com.cos.security1.config.auth;
 // User 오브젝트타입 => UserDetails타입 객체가 있어야한다.
 
 import com.cos.security1.model.User;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 // Security Session에다가 세션정보를 저장해주는데 여기에 들어갈 수 있는 객체가 Authentication객체인데 여기에 User정보를 저장할 때,
 // UserDetail타입을 꺼내면 User정보를 알 수 있다.
-public class PrincipalDetails implements UserDetails {
+@Data
+public class PrincipalDetails implements UserDetails, OAuth2User {
+
 
     // 우리 유저정보는 User객체가 들고있다.
     private User user;  // 콤포지션
+    private Map<String, Object> attributes;
 
+    // 일반 로그인 생성자
     public PrincipalDetails(User user){
         this.user=user;
+    }
+
+    // OAuth로그인 생성자
+    public PrincipalDetails(User user, Map<String, Object> attributes){
+        this.user= user;
+        this.attributes=attributes;
     }
 
     // 해당 유저의 권한을 리턴하는 곳!!
@@ -68,4 +81,14 @@ public class PrincipalDetails implements UserDetails {
         // 현재시간 - 로그인 시간 -> 1년을 초과하면 return false; 이런식으로 구현을 하면 된다.
         return true;
     }
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    @Override
+    public String getName() {
+        return null;
+    }
+
 }
